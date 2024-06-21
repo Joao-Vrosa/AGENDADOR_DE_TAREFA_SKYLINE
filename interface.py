@@ -6,6 +6,7 @@ import logging
 # Configuração básica de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 class Interface:
     def __init__(self, master=None):
         self.dados = {}  # Armazenar dados inseridos
@@ -175,10 +176,6 @@ class Interface:
         return True
     
 
-    def tipo_de_permicao(self):
-        pass
-
-
     def criar_script_tarefa(self):
         logging.info('Iniciando processo de criação de Script para tarefa...')
         if self.validar_campos():
@@ -194,7 +191,6 @@ class Interface:
             else:
                 script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F'
             
-            # script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F /RU "SYSTEM" /RL HIGHEST'
             logging.info(f'SCRIPT: {script}')
             self.output.insert(END, script)
         else:

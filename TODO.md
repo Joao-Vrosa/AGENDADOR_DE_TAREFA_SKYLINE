@@ -1,6 +1,7 @@
 # IDEIA:
 > Criar uma interface gráfica para auxiliar e facilitar a criação de uma tarefa básica no agendador de tarefa do Windows.
 
+
 # ALGORITIMO:
 > Criar interface grafica, a mesma dever obter os seguintes campos:
     > Titulo da tarefa;
@@ -12,6 +13,7 @@
     > Output do Script;
 
 > A aplicação tera um arquivos: interface.py (FrontEnd e BackEnd).
+
 
 # BIBLIOTECAS:
 > sys -> Utilizada neste código para inserir o script da SCHTASKS do Windows no terminal.

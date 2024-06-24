@@ -3,6 +3,7 @@ from tkinter.filedialog import askopenfilenames
 from tkinter import messagebox
 import logging
 
+
 # Configuração básica de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -11,16 +12,18 @@ class Interface:
     def __init__(self, master=None):
         self.dados = {}  # Armazenar dados inseridos
         self.caminho_do_arquivo = ""  # Caminho do arquivo executavel Skyline
+        self.tarefas = []  # Armazena as tarefas criadas
         self.fonte_padrao = ('Arial', 10,)  # Fonte padrão da aplicação
         
         # Armazenando o valor do Radiobutton
         self.radio_value = IntVar()
         self.radio_value.set(0)  # Valor padrão
         
+        
         # ##### CONTAINERS ##### #
-        self.containerPai = Frame(master)  # Conteiner pai
-        self.containerPai["pady"] = 10
-        self.containerPai.pack()
+        self.container1 = Frame(master)
+        self.container1["pady"] = 10
+        self.container1.pack()
         
         self.container2 = Frame(master)
         self.container2['padx'] = 20
@@ -36,6 +39,7 @@ class Interface:
         
         self.container5 = Frame(master)
         self.container5['padx'] = 20
+        self.container5['pady'] = 10
         self.container5.pack()
         
         self.container6 = Frame(master)
@@ -50,10 +54,11 @@ class Interface:
         self.container8['pady'] = 20
         self.container8.pack()
         
+        
         # ##### ELEMENTOS DA JANELA ##### #
         
         # LABEL - Titulo da tarefa
-        self.titulo_tarefa_label = Label(self.container2, text='Titulo da Tarefa', font=self.fonte_padrao, width=20)
+        self.titulo_tarefa_label = Label(self.container2, text='Título da Tarefa', font=self.fonte_padrao, width=20)
         self.titulo_tarefa_label.pack(side=LEFT)
         # INPUT - Titulo da tarefa
         self.titulo_tarefa = Entry(self.container2)
@@ -81,7 +86,7 @@ class Interface:
         self.senha.pack(side=RIGHT)
         
         # LABEL - Caminho do Executavel
-        self.caminho_executavel_label = Label(self.container5, text='Caminho do Executavel', font=self.fonte_padrao, width=20)
+        self.caminho_executavel_label = Label(self.container5, text='Caminho do Executável', font=self.fonte_padrao, width=20)
         self.caminho_executavel_label.pack(side=LEFT)
         # INPUT - Caminho do Executavel
         self.caminho_executavel = Button(self.container5, background="light green")
@@ -92,7 +97,7 @@ class Interface:
         self.caminho_executavel.pack()
         
         # Titulo
-        self.titulo = Label(self.containerPai, text='Menu de Configuração')
+        self.titulo = Label(self.container1, text='Menu de Configuração')
         self.titulo['font'] = ("Arial", 10, "bold")
         self.titulo.pack(side=TOP)
         
@@ -100,12 +105,12 @@ class Interface:
         self.label_sistema = Label(self.container6, text='Permissão do seu usuário', font=self.fonte_padrao, width=20)
         self.label_sistema.pack(side=TOP)
         # RADIOBUTTON 1 - Usuário ADM ou PADRÂO
-        self.sistema_adm = Radiobutton(self.container6, text='Administrador', value=1, indicator=0, variable= self.radio_value, command=self.tipo_de_permicao, background="light green")
+        self.sistema_adm = Radiobutton(self.container6, text='Administrador', value=1, indicator=0, variable= self.radio_value, background="light green")
         self.sistema_adm['font'] = self.fonte_padrao
         self.sistema_adm['width'] = 12
         self.sistema_adm.pack(side=TOP)
         # RADIOBUTTON 2 - Usuário ADM ou PADRÂO
-        self.sistema = Radiobutton(self.container6, text='Padão', value=2, indicator=0, variable= self.radio_value, command=self.tipo_de_permicao, background="light green")
+        self.sistema = Radiobutton(self.container6, text='Padrão', value=2, indicator=0, variable= self.radio_value, background="light green")
         self.sistema['font'] = self.fonte_padrao
         self.sistema['width'] = 12
         self.sistema.pack(side=TOP)
@@ -115,7 +120,7 @@ class Interface:
         self.sair['text'] = 'Sair'
         self.sair['font'] = self.fonte_padrao
         self.sair['width'] = 12
-        self.sair['command'] = self.containerPai.quit
+        self.sair['command'] = self.container1.quit
         self.sair.pack(side=LEFT)
         
         # Botão Criar Tarefa
@@ -154,7 +159,7 @@ class Interface:
         
     def validar_campos(self):
         if not self.titulo_tarefa.get():
-            messagebox.showerror("ERRO", "O campo 'Titulo da Tarefa' deve ser preenchido!")
+            messagebox.showerror("ERRO", "O campo 'Título da Tarefa' deve ser preenchido!")
             return False
         
         if not self.tempo.get():
@@ -177,7 +182,9 @@ class Interface:
     
 
     def criar_script_tarefa(self):
+        self.output.delete('1.0', END)  # Limpa o output antes de gerar o script
         logging.info('Iniciando processo de criação de Script para tarefa...')
+        
         if self.validar_campos():
             self.dados = {
                 'titulo': self.titulo_tarefa.get(),
@@ -186,17 +193,30 @@ class Interface:
                 'caminho': self.caminho_do_arquivo,
             }
             
-            if self.radio_value.get() == 1:
-                script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F /RU "SYSTEM" /RL HIGHEST'
-            else:
-                script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F'
             
-            logging.info(f'SCRIPT: {script}')
-            self.output.insert(END, script)
+            # Verificando se a tarefa ja existe
+            tarefa_existe = False
+            for tarefa in self.tarefas:
+                if self.dados['titulo'] == tarefa['titulo']:
+                    logging.info(f"A tarefa {self.dados['titulo']} já existe")
+                    messagebox.showwarning("ALERTA", f"A tarefa '{self.dados['titulo']}' já existe, utilize outro titulo ou edite uma atarefa existente!")
+                    tarefa_existe = True
+                    break 
+            if not tarefa_existe:
+                self.tarefas.append(self.dados)
+                        
+                # Criando Script
+                if self.radio_value.get() == 1:
+                    script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F /RU "SYSTEM" /RL HIGHEST'
+                else:
+                    script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F'
+                
+                logging.info(f'SCRIPT: {script}')
+                self.output.insert(END, script)  # Inserindo script no output
         else:
             logging.warning('Erro ao criar a tarefa: Todos os campos devem ser preenchidos!')
 
-
+          
 root = Tk()  # Permite que os widgets possam ser utilizados na aplicação.
 root.title('Agendador Skyline')
 Interface(root)

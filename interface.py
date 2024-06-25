@@ -5,7 +5,7 @@ import logging
 
 
 # Configuração básica de logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s -> %(message)s')
 
 
 class Interface:
@@ -183,7 +183,7 @@ class Interface:
 
     def criar_script_tarefa(self):
         self.output.delete('1.0', END)  # Limpa o output antes de gerar o script
-        logging.info('Iniciando processo de criação de Script para tarefa...')
+        logging.info(f'Iniciando processo de criação de Script para tarefa {self.titulo_tarefa.get()}')
         
         if self.validar_campos():
             self.dados = {
@@ -204,7 +204,8 @@ class Interface:
                     break 
             if not tarefa_existe:
                 self.tarefas.append(self.dados)
-                        
+                
+                
                 # Criando Script
                 if self.radio_value.get() == 1:
                     script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F /RU "SYSTEM" /RL HIGHEST'

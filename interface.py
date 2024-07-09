@@ -89,7 +89,7 @@ class Interface:
         self.caminho_executavel_label = Label(self.container5, text='Caminho do Executável', font=self.fonte_padrao, width=20)
         self.caminho_executavel_label.pack(side=LEFT)
         # INPUT - Caminho do Executavel
-        self.caminho_executavel = Button(self.container5, background="light green")
+        self.caminho_executavel = Button(self.container5, background="light blue")
         self.caminho_executavel['text'] = 'Selecionar .EXE'
         self.caminho_executavel['width'] = 12
         self.caminho_executavel['font'] = self.fonte_padrao
@@ -105,18 +105,18 @@ class Interface:
         self.label_sistema = Label(self.container6, text='Permissão do seu usuário', font=self.fonte_padrao, width=20)
         self.label_sistema.pack(side=TOP)
         # RADIOBUTTON 1 - Usuário ADM ou PADRÂO
-        self.sistema_adm = Radiobutton(self.container6, text='Administrador', value=1, indicator=0, variable= self.radio_value, background="light green")
+        self.sistema_adm = Radiobutton(self.container6, text='Administrador', value=1, indicator=0, variable= self.radio_value, background="light blue")
         self.sistema_adm['font'] = self.fonte_padrao
         self.sistema_adm['width'] = 12
         self.sistema_adm.pack(side=TOP)
         # RADIOBUTTON 2 - Usuário ADM ou PADRÂO
-        self.sistema = Radiobutton(self.container6, text='Padrão', value=2, indicator=0, variable= self.radio_value, background="light green")
+        self.sistema = Radiobutton(self.container6, text='Padrão', value=2, indicator=0, variable= self.radio_value, background="light blue")
         self.sistema['font'] = self.fonte_padrao
         self.sistema['width'] = 12
         self.sistema.pack(side=TOP)
         
         # Botão Sair
-        self.sair = Button(self.container8, background="light green")
+        self.sair = Button(self.container8, background="light blue")
         self.sair['text'] = 'Sair'
         self.sair['font'] = self.fonte_padrao
         self.sair['width'] = 12
@@ -124,7 +124,7 @@ class Interface:
         self.sair.pack(side=LEFT)
         
         # Botão Criar Tarefa
-        self.criar_tarefa = Button(self.container8, background="light green")
+        self.criar_tarefa = Button(self.container8, background="light blue")
         self.criar_tarefa['text'] = 'Criar Tarefa'
         self.criar_tarefa['font'] = self.fonte_padrao
         self.criar_tarefa['width'] = 12
@@ -193,27 +193,14 @@ class Interface:
                 'caminho': self.caminho_do_arquivo,
             }
             
+            # Criando Script
+            if self.radio_value.get() == 1:
+                script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F /RU "SYSTEM" /RL HIGHEST'
+            else:
+                script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F'
             
-            # Verificando se a tarefa ja existe
-            tarefa_existe = False
-            for tarefa in self.tarefas:
-                if self.dados['titulo'] == tarefa['titulo']:
-                    logging.info(f"A tarefa {self.dados['titulo']} já existe")
-                    messagebox.showwarning("ALERTA", f"A tarefa '{self.dados['titulo']}' já existe, utilize outro titulo ou edite uma atarefa existente!")
-                    tarefa_existe = True
-                    break 
-            if not tarefa_existe:
-                self.tarefas.append(self.dados)
-                
-                
-                # Criando Script
-                if self.radio_value.get() == 1:
-                    script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F /RU "SYSTEM" /RL HIGHEST'
-                else:
-                    script = f'SCHTASKS /CREATE /TN {self.dados["titulo"]} /TR "{self.dados["caminho"]} /SE={self.dados["senha"]}" /SC DAILY /ST 07:00 /RI {self.dados["tempo"]} /DU 24:00 /F'
-                
-                logging.info(f'SCRIPT: {script}')
-                self.output.insert(END, script)  # Inserindo script no output
+            logging.info(f'SCRIPT: {script}')
+            self.output.insert(END, script)  # Inserindo script no output
         else:
             logging.warning('Erro ao criar a tarefa: Todos os campos devem ser preenchidos!')
 

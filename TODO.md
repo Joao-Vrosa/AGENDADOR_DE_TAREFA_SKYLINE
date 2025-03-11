@@ -1,5 +1,5 @@
 ### IDEIA:
-- Criar uma interface gráfica para auxiliar e facilitar a criação de uma tarefa básica no agendador de tarefa do Windows.
+- Criar uma interface gráfica para auxiliar, facilitar e automatizar a criação de uma tarefa básica no Agendador de Tarefa do Windows.
 
 
 ### ALGORITIMO:
@@ -18,4 +18,4 @@
 ### BIBLIOTECAS:
 - sys --> Utilizada neste código para inserir o script da SCHTASKS do Windows no terminal.
 - tkinter --> Utilizada neste código para criar a interface grafica.
-- logging --> Utilizada neste código para apresentar mensagem de log.
+- logging --> Utilizada neste código para apresentar mensagens de log.
